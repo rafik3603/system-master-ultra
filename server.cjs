@@ -761,11 +761,15 @@ app.post('/api/network/changedns-preset', async (req, res) => {
 });
 
 app.get('/api/network/ping-test', (req, res) => {
-    exec("ping -c 3 -W 2 1.1.1.1 | tail -1 | awk '{print $4}' | cut -d '/' -f 2", (err, cfPing) => {
-        exec("ping -c 3 -W 2 8.8.8.8 | tail -1 | awk '{print $4}' | cut -d '/' -f 2", (err2, gPing) => {
+    const parseMs = (out) => {
+        const v = parseFloat(out);
+        return Number.isFinite(v) && v > 0 ? `${v.toFixed(0)} ms` : 'N/A';
+    };
+    exec("LC_ALL=C ping -c 3 -W 2 1.1.1.1 | tail -1 | awk '/ = / {print $4}' | cut -d '/' -f 2", (err, cfPing) => {
+        exec("LC_ALL=C ping -c 3 -W 2 8.8.8.8 | tail -1 | awk '/ = / {print $4}' | cut -d '/' -f 2", (err2, gPing) => {
             res.json({
-                cloudflare: cfPing ? `${parseFloat(cfPing).toFixed(0)} ms` : 'N/A',
-                google: gPing ? `${parseFloat(gPing).toFixed(0)} ms` : 'N/A'
+                cloudflare: parseMs(cfPing),
+                google: parseMs(gPing)
             });
         });
     });
@@ -818,11 +822,15 @@ app.get('/api/network/scan', (req, res) => {
         if (!stdout) return res.json([]);
         const lines = stdout.trim().split('\n').map(line => {
             const parts = line.trim().split(/\s+/);
+            // Extract clean process name from "users:((\"proc\",pid=...,fd=...))"
+            const rawProc = parts.slice(6).join(' ') || '';
+            const procMatch = rawProc.match(/\(\("([^"]+)"/);
+            const process = procMatch ? procMatch[1] : 'النظام';
             return {
                 proto: parts[0] || 'TCP',
                 state: parts[1] || 'LISTEN',
                 local: parts[4] || '127.0.0.1',
-                process: parts[6] || "النظام"
+                process
             };
         });
         res.json(lines);
@@ -927,8 +935,13 @@ app.get('/api/system/logs', (req, res) => {
 
 app.get('/api/doctor/diagnose', (req, res) => {
     exec("journalctl -p 3 -xb --no-pager -n 20 2>/dev/null; systemctl --failed --no-legend 2>/dev/null", (err, errorsStdout) => {
-        const errorLines = (errorsStdout || '').trim().split('\n').filter(Boolean);
-        const hasErrors = errorLines.length > 0 && !errorsStdout.includes('0 loaded units listed');
+        // Filter out placeholder/no-entry lines that are not real errors
+        const errorLines = (errorsStdout || '').trim().split('\n')
+            .filter(Boolean)
+            .filter(l => !/^-- (No entries|No log files|Logs begin)/.test(l))
+            .filter(l => !/0 loaded units listed/.test(l))
+            .filter(l => /^\s*[●✖✗-]?\s*[a-zA-Z0-9_.-]+\.service| prio | journal | kern | daemon/.test(l) || /failed|error|fail/i.test(l));
+        const hasErrors = errorLines.length > 0;
         
         let report = {
             status: hasErrors ? 'warning' : 'healthy',
@@ -1165,10 +1178,11 @@ app.get('/api/system/updates', (req, res) => {
     exec("apt list --upgradable 2>/dev/null | tail -n +2 | head -30", (err, stdout) => {
         const lines = (stdout || '').trim().split('\n').filter(Boolean);
         const updates = lines.map(line => {
-            const m = line.match(/^([^\/]+)\/([^\s]+)\s+(\S+)\s+(\S+)\s+\[upgradable from: (.*)\]$/);
-            if (m) return { name: m[1], repo: m[2], arch: m[3], to: m[4], from: m[5] };
+            // Format: pkg/repo version arch [upgradable from: old]
+            const m = line.match(/^([^\/\s]+)\/(\S+)\s+(\S+)\s+(\S+)\s+\[upgradable from: (.*?)\]\s*$/);
+            if (m) return { name: m[1], repo: m[2].split(',')[0], to: m[3], arch: m[4], from: m[5] };
             const simple = line.split(/\s+/);
-            return { name: simple[0] || line, to: simple[1] || '', from: '' };
+            return { name: simple[0] || line, to: '', from: '' };
         });
         res.json({ count: updates.length, updates });
     });

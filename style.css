@@ -472,6 +472,28 @@ header p {
     transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+/* Install progress bar */
+.progress-container {
+    width: 100%;
+    max-width: 420px;
+    margin: 1rem auto;
+    font-weight: 700;
+}
+.progress-container::before {
+    content: '';
+    display: block;
+    height: 8px;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(90deg, var(--primary), var(--secondary), var(--primary));
+    background-size: 200% 100%;
+    animation: shimmer 1.2s linear infinite;
+    box-shadow: 0 0 12px var(--primary-glow);
+}
+.progress-container.hidden {
+    display: none;
+}
+
 /* Developer signature */
 .dev-signature {
     margin-top: 0.6rem;
