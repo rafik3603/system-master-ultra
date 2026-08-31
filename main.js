@@ -35,7 +35,7 @@ document.querySelectorAll('.nav-btn').forEach(btn => {
         if (tabId === 'startup') loadStartupApps();
         if (tabId === 'storage') loadLargeFiles();
         if (tabId === 'services') loadServices();
-        if (tabId === 'installer') checkWineStatus();
+        if (tabId === 'installer') { checkWineStatus(); loadWinePrograms(); }
         if (tabId === 'network') loadPingTest();
         if (tabId === 'network-info') loadNetworkInfo();
         if (tabId === 'system-info') loadSystemInfo();
@@ -1333,6 +1333,67 @@ window.exportJsonReport = async () => {
         URL.revokeObjectURL(url);
         alert('تم تصدير التقرير بنجاح.');
     } catch (e) { alert('فشل تصدير التقرير'); }
+};
+
+// ==========================================
+// 11j. Windows (Wine) Programs — list & delete
+// ==========================================
+window.loadWinePrograms = async () => {
+    const listEl = document.getElementById('wineProgramsList');
+    if (!listEl) return;
+    listEl.innerHTML = '<div class="loading">جاري فحص برامج ويندوز في بيئة Wine...</div>';
+    try {
+        const res = await fetch(`${API_BASE}/wine/programs`);
+        const data = await res.json();
+        if (!data.installed) {
+            listEl.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--text-dim);">🔴 بيئة Wine غير مثبتة — فعّلها أولاً من الأعلى.</div>';
+            return;
+        }
+        if (!data.programs.length) {
+            listEl.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--text-dim);">لا توجد برامج ويندوز مثبتة حالياً.</div>';
+            return;
+        }
+        listEl.innerHTML = data.programs.map(p => `
+            <div class="soft-item" ${p.system ? 'style="opacity: 0.75;"' : ''}>
+                <div style="text-align: right; flex: 1;">
+                    <div style="font-weight: 700; color: white;">${esc(p.name)} ${p.system ? '<span class="soft-tag" style="background: rgba(255,165,0,0.15); color: #f59e0b;">مكوّن نظام</span>' : ''}</div>
+                    <div style="font-size: 0.78rem; color: var(--text-dim); margin-top: 3px;">
+                        ${p.version ? 'الإصدار: ' + esc(p.version) + ' | ' : ''}${p.uninstaller ? 'معالج إزالة رسمي متوفر ✅' : 'سيتم حذف ملفات البرنامج مباشرة'}
+                    </div>
+                </div>
+                <button class="btn-delete" onclick="uninstallWineProgram('${encodeURIComponent(p.key)}', '${encodeURIComponent(p.name)}', ${p.uninstaller ? 'true' : 'false'})">🗑️ حذف</button>
+            </div>
+        `).join('');
+    } catch (e) {
+        listEl.innerHTML = 'فشل فحص برامج ويندوز';
+    }
+};
+
+window.uninstallWineProgram = async (key, name, hasUninstaller) => {
+    key = decodeURIComponent(key);
+    name = decodeURIComponent(name);
+    const warn = hasUninstaller
+        ? `سيتم تشغيل معالج الإزالة الرسمي لـ "${name}". متابعة؟`
+        : `سيتم حذف برنامج "${name}" وملفاته نهائياً من بيئة Wine. متأكد؟`;
+    if (!confirm(warn)) return;
+    try {
+        // Find the uninstaller string from the cached list
+        let uninstaller = '';
+        try {
+            const res = await fetch(`${API_BASE}/wine/programs`);
+            const data = await res.json();
+            const match = data.programs.find(p => p.key === key && p.name === name);
+            if (match) uninstaller = match.uninstaller || '';
+        } catch (e) {}
+        const res = await fetch(`${API_BASE}/wine/uninstall`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ key, name, uninstaller })
+        });
+        const result = await res.json();
+        alert(result.message || result.error || 'تم');
+        loadWinePrograms();
+    } catch (e) { alert('فشل حذف برنامج ويندوز'); }
 };
 
 // ==========================================

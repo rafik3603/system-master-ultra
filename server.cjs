@@ -444,6 +444,132 @@ app.get('/api/wine/status', (req, res) => {
     });
 });
 
+// List Windows programs installed under Wine (registry Uninstall keys + fallback to Program Files scan)
+app.get('/api/wine/programs', (req, res) => {
+    const winePrefix = path.join(os.homedir(), '.wine');
+    if (!fs.existsSync(path.join(winePrefix, 'drive_c'))) {
+        return res.json({ installed: false, programs: [] });
+    }
+    // Read Uninstall entries from the Wine registry (user + machine)
+    const regPaths = [
+        path.join(winePrefix, 'system.reg'),
+        path.join(winePrefix, 'user.reg')
+    ];
+    const programs = [];
+    try {
+        for (const regPath of regPaths) {
+            if (!fs.existsSync(regPath)) continue;
+            const content = fs.readFileSync(regPath, 'utf-8');
+            // Real program entries: [Software\\...\\Uninstall\\<key>] or InstallProperties blocks with DisplayName
+            const blockRe = /\[Software\\[^\]]*(?:Uninstall\\([^\\\]]+)|InstallProperties)\]([^\][]*?)(?=\n\[Software|\n\n|$)/g;
+            let m;
+            while ((m = blockRe.exec(content)) !== null) {
+                const block = m[2] || '';
+                const nameMatch = block.match(/"DisplayName"="([^"]+)"/);
+                if (!nameMatch) continue;
+                const name = nameMatch[1].trim();
+                if (!name) continue;
+                // Extract clean key: last segment of the registry path
+                const pathMatch = m[0].match(/\\([^\\]+)\]$/);
+                const key = (m[1] && m[1] !== 'InstallProperties') ? m[1] : (pathMatch ? pathMatch[1] : name);
+                // Skip obvious non-program junk but KEEP real apps (mark system components)
+                if (/\.(log|txt|ini|dat)$/i.test(name)) continue;
+                const isSystem = /^(Microsoft|Windows|MsiPackage|msedge|chromium|DirectX|VC\+\+|KB\d+|Wine|Mono|Gecko|DIFX|Internet Explorer|\.NET)/i.test(name);
+                const uninstMatch = block.match(/"UninstallString"=(?:str\(2\):)?"([^"]+)"/);
+                const iconMatch = block.match(/"DisplayIcon"=(?:str\(2\):)?"([^"]+)"/);
+                const verMatch = block.match(/"DisplayVersion"="([^"]+)"/);
+                // Deduplicate by name
+                if (programs.some(p => p.name === name)) continue;
+                programs.push({
+                    key,
+                    name,
+                    version: verMatch ? verMatch[1] : '',
+                    icon: iconMatch ? iconMatch[1] : '',
+                    uninstaller: uninstMatch ? uninstMatch[1] : '',
+                    system: isSystem,
+                    source: regPath.endsWith('system.reg') ? 'machine' : 'user'
+                });
+            }
+        }
+    } catch (e) { /* registry read failed */ }
+
+    // Deduplicate by key
+    const seen = new Set();
+    const unique = programs.filter(p => !seen.has(p.key) && seen.add(p.key));
+
+    // Also scan Program Files folders to catch apps not registered in the registry
+    try {
+        for (const pf of ['Program Files', 'Program Files (x86)']) {
+            const pfDir = path.join(winePrefix, 'drive_c', pf);
+            if (!fs.existsSync(pfDir)) continue;
+            for (const dir of fs.readdirSync(pfDir, { withFileTypes: true })) {
+                if (!dir.isDirectory()) continue;
+                if (/^(Common Files|Windows NT|Internet Explorer|Windows Media Player|Microsoft|DIFX|ProgramData|Uninstall Information)$/i.test(dir.name)) continue;
+                if (/\.(log|txt|ini|dat)$/i.test(dir.name)) continue;
+                if (unique.some(p => p.name.toLowerCase() === dir.name.toLowerCase())) continue;
+                unique.push({ key: dir.name, name: dir.name, version: '', icon: '', uninstaller: '', system: false, source: 'folder', folder: path.join(pfDir, dir.name) });
+            }
+        }
+    } catch (e) { /* scan failed */ }
+
+    res.json({ installed: true, programs: unique });
+});
+
+// Delete a Windows program installed under Wine
+app.post('/api/wine/uninstall', async (req, res) => {
+    const { key, name, uninstaller } = req.body;
+    const winePrefix = path.join(os.homedir(), '.wine');
+    const driveC = path.join(winePrefix, 'drive_c');
+
+    // Prevent path traversal: key/name must not contain separators
+    const safeKey = String(key || '').replace(/[/\\]/g, '_');
+    const safeName = String(name || '').replace(/[/\\]/g, '_');
+
+    if (!safeKey && !safeName) return res.status(400).json({ success: false, message: "اسم البرنامج مطلوب" });
+
+    try {
+        let usedUninstaller = false;
+        // 1) Try the program's own uninstaller via Wine (silent modes first)
+        if (uninstaller && !/[;&|`$]/.test(uninstaller)) {
+            const cmd = uninstaller.replace(/"/g, '');
+            await execPromise(`${cmd} /S /SILENT /VERYSILENT /NORESTART`, { timeout: 120000 }).catch(() => {});
+            usedUninstaller = true;
+        }
+        // 2) Delete program folders matching the key/name in Program Files
+        let deletedDirs = [];
+        for (const pf of ['Program Files', 'Program Files (x86)']) {
+            const pfDir = path.join(driveC, pf);
+            if (!fs.existsSync(pfDir)) continue;
+            for (const dir of fs.readdirSync(pfDir)) {
+                const dirLower = dir.toLowerCase();
+                if (dirLower === (safeKey || '').toLowerCase() || dirLower === (safeName || '').toLowerCase()) {
+                    fs.rmSync(path.join(pfDir, dir), { recursive: true, force: true });
+                    deletedDirs.push(dir);
+                }
+            }
+        }
+        // 3) Remove registry uninstall entries so the list stays clean
+        for (const regFile of ['user.reg', 'system.reg']) {
+            const regPath = path.join(winePrefix, regFile);
+            if (!fs.existsSync(regPath)) continue;
+            try {
+                let content = fs.readFileSync(regPath, 'utf-8');
+                const escKey = safeKey.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const blockRe = new RegExp(`\\[Software\\\\[^\\]]*Uninstall\\\\${escKey}\\][\\s\\S]*?(?=\\n\\n|\\[Software|$)`, 'g');
+                const before = content.length;
+                content = content.replace(blockRe, '');
+                if (content.length !== before) fs.writeFileSync(regPath, content);
+            } catch (e) { /* registry write failed */ }
+        }
+        const msg = usedUninstaller && !deletedDirs.length
+            ? `تم تشغيل معالج إزالة ${safeName} — أكمل الخطوات من نافذته إن ظهرت.`
+            : `تم حذف برنامج "${safeName}" وملفاته من بيئة Wine بنجاح!`;
+        res.json({ success: true, message: msg, deletedDirs });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
 app.post('/api/wine/install', async (req, res) => {
     res.json({ success: true, message: "بدأ تثبيت بيئة تشغيل تطبيقات ويندوز (Wine) في الخلفية..." });
     (async () => {
