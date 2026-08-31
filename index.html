@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Master Ultra 2.0 | مدير النظام الاحترافي</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">💠</div>
+                <div>
+                    <h1>System Master</h1>
+                    <span style="font-size: 0.75rem; color: var(--primary); letter-spacing: 1px;">PRO v2.0</span>
+                </div>
+            </div>
+            
+            <nav>
+                <button class="nav-btn active" data-tab="dashboard">
+                    <span class="icon">📈</span> لوحة القيادة
+                </button>
+                <button class="nav-btn" data-tab="software">
+                    <span class="icon">📦</span> إدارة البرامج المثبتة
+                </button>
+                <button class="nav-btn" data-tab="startup">
+                    <span class="icon">🚀</span> بدء التشغيل (Startup)
+                </button>
+                <button class="nav-btn" data-tab="storage">
+                    <span class="icon">🗄️</span> محلل التخزين والملفات
+                </button>
+                <button class="nav-btn" data-tab="services">
+                    <span class="icon">⚙️</span> إدارة الخدمات
+                </button>
+                <button class="nav-btn" data-tab="installer">
+                    <span class="icon">🛸</span> تثبيت البرامج و Wine
+                </button>
+                <button class="nav-btn" data-tab="optimizer">
+                    <span class="icon">🌀</span> تسريع وتنظيف النظام
+                </button>
+                <button class="nav-btn" data-tab="network">
+                    <span class="icon">🌐</span> الشبكة والـ DNS
+                </button>
+                <button class="nav-btn" data-tab="network-info">
+                    <span class="icon">📶</span> معلومات الشبكة الحالية
+                </button>
+                <button class="nav-btn" data-tab="system-info">
+                    <span class="icon">🖥️</span> معلومات النظام الكاملة
+                </button>
+                <button class="nav-btn" data-tab="doctor">
+                    <span class="icon">🩺</span> طبيب النظام AI
+                </button>
+                <button class="nav-btn" data-tab="themes">
+                    <span class="icon">🎨</span> الثيمات والمظهر
+                </button>
+                <button class="nav-btn" data-tab="tweaks">
+                    <span class="icon">🛠️</span> مُعدّل خيارات GNOME
+                </button>
+                <button class="nav-btn" data-tab="wallpapers">
+                    <span class="icon">🖼️</span> خلفيات 4K
+                </button>
+                <button class="nav-btn" data-tab="processes">
+                    <span class="icon">📊</span> إدارة العمليات
+                </button>
+                <button class="nav-btn" data-tab="security">
+                    <span class="icon">🛡️</span> مركز الأمان (UFW)
+                </button>
+                <button class="nav-btn" data-tab="network-pro">
+                    <span class="icon">📡</span> المنافذ النشطة
+                </button>
+                <button class="nav-btn" data-tab="kernel">
+                    <span class="icon">🧬</span> مستكشف النواة
+                </button>
+                <button class="nav-btn" data-tab="backup">
+                    <span class="icon">💾</span> النسخ الاحتياطي
+                </button>
+                <button class="nav-btn" data-tab="disk-analyzer">
+                    <span class="icon">🗃️</span> محلل مساحة القرص
+                </button>
+                <button class="nav-btn" data-tab="partitions">
+                    <span class="icon">💿</span> الأقراص والأقسام
+                </button>
+                <button class="nav-btn" data-tab="updates">
+                    <span class="icon">🔄</span> التحديثات المتوفرة
+                </button>
+                <button class="nav-btn" data-tab="power">
+                    <span class="icon">⏻</span> أزرار الطاقة
+                </button>
+            </nav>
+
+            <div class="status-indicator">
+                <div class="dot"></div>
+                <span>الذكاء الاصطناعي والمراقبة نشطة</span>
+            </div>
+            <button class="theme-toggle" onclick="toggleTheme()" title="تبديل السمة (ليلي/نهاري)">🌙</button>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <!-- 1. Dashboard -->
+            <section id="dashboard" class="tab-content active">
+                <header>
+                    <h2>تحليل ومراقبة موارد النظام</h2>
+                    <p>مراقبة حية للمعالج، الذاكرة العشوائية، القرص الصلب وسرعة الشبكة.</p>
+                </header>
+                
+                <div id="smartAlert" class="smart-alert hidden"></div>
+                
+                <div class="info-badges">
+                    <div class="badge"><span class="icon">🐧</span> النواة: <span id="kernelVal">جارٍ...</span></div>
+                    <div class="badge"><span class="icon">⏱️</span> وقت التشغيل: <span id="uptimeVal">جارٍ...</span></div>
+                    <div class="badge"><span class="icon">💾</span> الرام المستخدم: <span id="memUsageBadge" style="color: var(--primary);">جارٍ...</span></div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card" style="--primary: #00f2ff;">
+                        <div class="stat-header">
+                            <h3>المعالج المركزي (CPU)</h3>
+                            <span class="soft-tag">نشط</span>
+                        </div>
+                        <div class="chart-box">
+                            <canvas id="cpuChart"></canvas>
+                        </div>
+                        <div class="stat-value" id="cpuVal">0%</div>
+                    </div>
+
+                    <div class="stat-card" style="--primary: #7000ff;">
+                        <div class="stat-header">
+                            <h3>الذاكرة العشوائية (RAM)</h3>
+                            <span class="soft-tag">مستقر</span>
+                        </div>
+                        <div class="chart-box">
+                            <canvas id="memChart"></canvas>
+                        </div>
+                        <div class="stat-value" id="memVal">0%</div>
+                    </div>
+
+                    <div class="stat-card" style="--primary: #ff0055;">
+                        <div class="stat-header">
+                            <h3>سعة التخزين الأساسية</h3>
+                            <span class="soft-tag" id="diskUsageText">0 GB</span>
+                        </div>
+                        <div class="chart-box">
+                            <canvas id="diskChart"></canvas>
+                        </div>
+                        <div class="stat-value" id="diskVal">0%</div>
+                    </div>
+                </div>
+
+                <!-- Network Traffic Chart Card -->
+                <div class="stat-card glow-card" style="margin-top: 1.5rem; --primary: var(--neon-purple);">
+                    <div class="stat-header">
+                        <h3>حركة بيانات الشبكة المباشرة (Live Network Traffic)</h3>
+                        <div style="font-size: 0.9rem;">
+                            <span style="color: var(--success); margin-left: 15px;">⬇️ تحميل: <strong id="rxSpeed">0</strong> KB/s</span>
+                            <span style="color: var(--danger);">⬆️ رفع: <strong id="txSpeed">0</strong> KB/s</span>
+                        </div>
+                    </div>
+                    <div class="chart-box">
+                        <canvas id="networkChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Quick Hardware & Sensor Info Section -->
+                <div class="stat-card" style="margin-top: 1.5rem; width: 100%; --primary: #00ff88;">
+                    <div class="stat-header">
+                        <h3>مواصفات العتاد ودرجات الحرارة</h3>
+                        <span class="soft-tag">تقرير العتاد</span>
+                    </div>
+                    <div id="hwInfo" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.2rem; color: var(--text-dim); margin-top: 1rem;">
+                        <div class="soft-item" style="padding: 10px 15px;"><span class="icon">🔳</span><div><small>المعالج</small><div id="hwCpu" style="color: white; font-weight: bold;">جارٍ الفحص...</div></div></div>
+                        <div class="soft-item" style="padding: 10px 15px;"><span class="icon">🎮</span><div><small>كرت الشاشة</small><div id="hwGpu" style="color: white; font-weight: bold;">جارٍ الفحص...</div></div></div>
+                        <div class="soft-item" style="padding: 10px 15px;"><span class="icon">🌡️</span><div><small>حرارة المعالج</small><div id="hwTemp" style="color: #ff416c; font-weight: bold;">--</div></div></div>
+                        <div class="soft-item" style="padding: 10px 15px;"><span class="icon">🌀</span><div><small>المروحة</small><div id="hwFan" style="color: #00f2ff; font-weight: bold;">--</div></div></div>
+                        <div class="soft-item" style="padding: 10px 15px; grid-column: 1 / -1;"><span class="icon">💾</span><div><small>الأقراص الموصلة</small><div id="hwDisk" style="color: #00ff88; font-weight: bold;">جارٍ الفحص...</div></div></div>
+                    </div>
+                </div>
+
+                <!-- Quick Modes & Instant Boost -->
+                <div class="stat-card" style="margin-top: 1.5rem; width: 100%; --primary: #00ff88;">
+                    <div class="stat-header">
+                        <h3>أوضاع التشغيل السريعة والأداء</h3>
+                        <span class="soft-tag">التحكم الفوري</span>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                        <button class="btn-primary" onclick="applyMode('gaming')" style="background: linear-gradient(135deg, #ff0055, #7000ff);">🎮 وضع الألعاب (الأداء الأقصى)</button>
+                        <button class="btn-primary" onclick="applyMode('power')" style="background: linear-gradient(135deg, #00ff88, #00c7ff); color: #000;">🔋 توفير الطاقة وتبريد الجهاز</button>
+                        <button class="btn-primary" onclick="applyMode('balanced')" style="background: var(--panel);">⚖️ متوازن (افتراضي)</button>
+                        <button class="btn-primary" onclick="dropRamCache()" style="background: linear-gradient(135deg, #f59e0b, #d97706);">⚡ تفريغ الذاكرة المؤقتة (Drop RAM)</button>
+                    </div>
+                    <div style="margin-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">
+                        <button class="btn-primary" onclick="stopAllServers()" style="width: 100%; background: linear-gradient(135deg, #ff4b2b, #ff416c); font-weight: bold; font-size: 1rem; box-shadow: 0 4px 15px rgba(255, 75, 43, 0.3);">🛑 إيقاف جميع خوادم التطوير و Ollama بضغطة واحدة</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. Software Management (Friendly Names & Uninstall) -->
+            <section id="software" class="tab-content">
+                <header>
+                    <h2>إدارة وحذف البرامج المثبتة</h2>
+                    <p>استعرض جميع التطبيقات والبرمجيات بأسمائها وأيقوناتها الواضحة مع إمكانية البحث والحذف الفوري.</p>
+                </header>
+
+                <!-- Software Controls: Search & Category Filter -->
+                <div class="software-search-bar" style="display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 250px; position: relative;">
+                        <input type="text" id="softwareSearchInput" placeholder="🔍 ابحث عن أي برنامج بالاسم (مثلاً: Chrome, VLC, Telegram, GIMP...)" style="width: 100%; padding: 12px 18px; border-radius: 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); color: white; font-size: 1rem;">
+                    </div>
+                    <div id="softwareCountBadge" class="badge" style="display: flex; align-items: center; font-weight: bold; background: rgba(0, 242, 255, 0.1); border-color: var(--primary);">
+                        <span>0 برنامج</span>
+                    </div>
+                </div>
+
+                <div class="category-pills" id="categoryPills" style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+                    <button class="cat-btn active" data-cat="all">الكل</button>
+                    <button class="cat-btn" data-cat="إنترنت وتواصل">🌐 إنترنت وتواصل</button>
+                    <button class="cat-btn" data-cat="وسائط ومونتاج">🎬 وسائط ومونتاج</button>
+                    <button class="cat-btn" data-cat="برمجة وتطوير">💻 برمجة وتطوير</button>
+                    <button class="cat-btn" data-cat="ألعاب">🎮 ألعاب</button>
+                    <button class="cat-btn" data-cat="أدوات ومكتب">📄 أدوات ومكتب</button>
+                    <button class="cat-btn" data-cat="أدوات النظام">⚙️ أدوات النظام</button>
+                </div>
+
+                <div class="software-grid" id="softwareList">
+                    <div class="loading">جاري فحص وتجميع البرامج المثبتة على نظامك...</div>
+                </div>
+            </section>
+
+            <!-- 3. Startup Applications -->
+            <section id="startup" class="tab-content">
+                <header>
+                    <h2>برامج بدء التشغيل (Startup Applications)</h2>
+                    <p>التحكم في البرامج التي تبدأ تلقائياً مع فتح النظام لتسريع إقلاع الجهاز.</p>
+                </header>
+                <div class="software-container" id="startupList">
+                    <div class="loading">جاري فحص قائمة الإقلاع التلقائي...</div>
+                </div>
+            </section>
+
+            <!-- 4. Storage & Large Files Analyzer -->
+            <section id="storage" class="tab-content">
+                <header>
+                    <h2>محلل التخزين والملفات الكبيرة</h2>
+                    <p>اكتشف الملفات الضخمة والفيديوهات والتنزيلات القديمة التي تستهلك مساحة القرص لحذفها وتوفير الجيجابايت.</p>
+                </header>
+                <div style="margin-bottom: 1.5rem;">
+                    <button class="btn-primary" onclick="loadLargeFiles()" style="background: linear-gradient(135deg, var(--neon-purple), var(--primary));">🔍 فحص واكتشاف الملفات الأكبر من 100 ميجابايت</button>
+                </div>
+                <div class="software-container" id="largeFilesList">
+                    <p style="color: var(--text-dim); text-align: center; padding: 2rem;">اضغط على زر الفحص للبحث عن الملفات الكبيرة في مجلداتك.</p>
+                </div>
+            </section>
+
+            <!-- 5. Services Management -->
+            <section id="services" class="tab-content">
+                <header>
+                    <h2>إدارة خدمات النظام (System Services)</h2>
+                    <p>التحكم في خدمات systemd التي تعمل في الخلفية بأمان وسهولة.</p>
+                </header>
+                <div class="software-container" id="servicesList">
+                    <div class="loading">جاري فحص الخدمات النشطة...</div>
+                </div>
+            </section>
+
+            <!-- 6. Installer & App Store -->
+            <section id="installer" class="tab-content">
+                <header>
+                    <h2>لوحة تثبيت البرمجيات الذكية</h2>
+                    <p>دعم كامل للحزم الخارجية (.deb, .appimage, .tar.gz) وتطبيقات ويندوز 11 (.exe, .msi) بضغطة زر.</p>
+                </header>
+
+                <!-- Wine Status Card -->
+                <div class="wine-status-card">
+                    <div class="wine-status-info">
+                        <div class="wine-badge">🍷</div>
+                        <div class="wine-status-text">
+                            <h3>بيئة تشغيل برامج ويندوز (Wine)</h3>
+                            <p id="wineStatusText">جاري فحص حالة بيئة التشغيل على جهازك...</p>
+                        </div>
+                    </div>
+                    <button class="btn-primary" id="btnInstallWine" style="background: linear-gradient(135deg, var(--neon-purple), var(--danger)); display: none;" onclick="installWine()">تفعيل بيئة تشغيل الويندوز 🚀</button>
+                </div>
+
+                <!-- Drag & Drop Uploader -->
+                <div class="drop-zone" id="dropZone">
+                    <div class="drop-content">
+                        <span class="drop-icon">🛸</span>
+                        <h3>أسقط ملف التثبيت هنا</h3>
+                        <p>ندعم صيغ لينكس (.deb, .appimage, .tar.gz) وصيغ ويندوز (.exe, .msi)</p>
+                        <input type="file" id="fileInput" hidden accept=".deb,.exe,.msi,.appimage,.tar.gz,.tgz">
+                        <button class="btn-primary" onclick="document.getElementById('fileInput').click()">اختيار ملف يدوي</button>
+                    </div>
+                </div>
+                <div id="installProgress" class="progress-container hidden" style="margin-top: 1rem; text-align: center; color: var(--primary);">
+                    <div class="loading">جاري معالجة وتثبيت الحزمة... يرجى الانتظار</div>
+                </div>
+
+                <!-- Linux Native Essential Apps -->
+                <div class="store-section-title">🐧 برمجيات لينكس الأساسية الأكثر طلباً</div>
+                <div class="store-grid">
+                    <div class="app-card linux">
+                        <span class="os-pill lin">Linux</span>
+                        <div class="app-icon">🌐</div>
+                        <h4>Google Chrome</h4>
+                        <p>المتصفح الأسرع والأكثر استقراراً وتوافقاً مع كافة تقنيات الويب.</p>
+                        <button class="btn-install" id="btn-store-chrome" onclick="installStoreApp('chrome')">تثبيت فوري</button>
+                    </div>
+                    <div class="app-card linux">
+                        <span class="os-pill lin">Linux</span>
+                        <div class="app-icon">💻</div>
+                        <h4>Visual Studio Code</h4>
+                        <p>بيئة العمل البرمجية المتكاملة مع إضافات وميزات خارقة.</p>
+                        <button class="btn-install" id="btn-store-vscode" onclick="installStoreApp('vscode')">تثبيت فوري</button>
+                    </div>
+                    <div class="app-card linux">
+                        <span class="os-pill lin">Linux</span>
+                        <div class="app-icon">🎬</div>
+                        <h4>VLC Media Player</h4>
+                        <p>مشغل الوسائط الأقوى عالمياً لتشغيل جميع صيغ الفيديو والصوت.</p>
+                        <button class="btn-install" id="btn-store-vlc" onclick="installStoreApp('vlc')">تثبيت فوري</button>
+                    </div>
+                    <div class="app-card linux">
+                        <span class="os-pill lin">Linux</span>
+                        <div class="app-icon">🎨</div>
+                        <h4>GIMP Image Editor</h4>
+                        <p>برنامج تعديل ومعالجة الصور المتقدم البديل للفوتوشوب.</p>
+                        <button class="btn-install" id="btn-store-gimp" onclick="installStoreApp('gimp')">تثبيت فوري</button>
+                    </div>
+                    <div class="app-card linux">
+                        <span class="os-pill lin">Linux</span>
+                        <div class="app-icon">💬</div>
+                        <h4>Discord Client</h4>
+                        <p>المنصة الاجتماعية الأبرز للمحادثات الصوتية والمجتمعات.</p>
+                        <button class="btn-install" id="btn-store-discord" onclick="installStoreApp('discord')">تثبيت فوري</button>
+                    </div>
+                    <div class="app-card linux">
+                        <span class="os-pill lin">Linux</span>
+                        <div class="app-icon">🎥</div>
+                        <h4>Zoom Meetings</h4>
+                        <p>تطبيق المحادثات والاجتماعات التفاعلية الأقوى للأعمال والتعليم.</p>
+                        <button class="btn-install" id="btn-store-zoom" onclick="installStoreApp('zoom')">تثبيت فوري</button>
+                    </div>
+                </div>
+
+                <!-- Windows 11 Apps Store (Wine) -->
+                <div class="store-section-title">🪟 برمجيات ويندوز 11 على لينكس (عبر Wine)</div>
+                <div class="store-grid">
+                    <div class="app-card windows">
+                        <span class="os-pill win">Windows 11</span>
+                        <div class="app-icon">📝</div>
+                        <h4>Notepad++</h4>
+                        <p>محرر النصوص البرمجي الخفيف والأكثر شعبية لمطوري الويندوز.</p>
+                        <button class="btn-install" id="btn-store-notepadplusplus" onclick="installStoreApp('notepadplusplus')">تحميل وتثبيت عبر Wine</button>
+                    </div>
+                    <div class="app-card windows">
+                        <span class="os-pill win">Windows 11</span>
+                        <div class="app-icon">📚</div>
+                        <h4>WinRAR Pro</h4>
+                        <p>العملاق العالمي لضغط وفك ضغط الملفات المؤرشفة بسهولة تامة.</p>
+                        <button class="btn-install" id="btn-store-winrar" onclick="installStoreApp('winrar')">تحميل وتثبيت عبر Wine</button>
+                    </div>
+                    <div class="app-card windows">
+                        <span class="os-pill win">Windows 11</span>
+                        <div class="app-icon">🚀</div>
+                        <h4>Internet Download Manager</h4>
+                        <p>البرنامج الأسرع لتحميل الملفات وإدارتها بأقصى سرعة اتصال.</p>
+                        <button class="btn-install" id="btn-store-idm" onclick="installStoreApp('idm')">تحميل وتثبيت عبر Wine</button>
+                    </div>
+                    <div class="app-card windows">
+                        <span class="os-pill win">Windows 11</span>
+                        <div class="app-icon">🗜️</div>
+                        <h4>7-Zip (Win)</h4>
+                        <p>أداة ضغط وأرشفة قوية للغاية ومفتوحة المصدر للويندوز.</p>
+                        <button class="btn-install" id="btn-store-sevenzip" onclick="installStoreApp('sevenzip')">تحميل وتثبيت عبر Wine</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 7. Optimizer -->
+            <section id="optimizer" class="tab-content">
+                <header>
+                    <h2>مركز تنظيف وتحسين النظام الشامل</h2>
+                    <p>تخلص من الملفات الزائدة واستعد مساحة القرص وسرعة المعالج والذاكرة بضغطة واحدة.</p>
+                </header>
+                <div class="stats-grid">
+                    <div class="stat-card glow-card" style="--primary: var(--neon-green);">
+                        <div class="stat-header">
+                            <h3>الصاروخ (One-Click Boost)</h3>
+                            <span class="soft-tag">الأداء الأقصى</span>
+                        </div>
+                        <p style="margin: 1rem 0; color: var(--text-dim);">تنفيذ كافة عمليات التنظيف والصيانة وتفريغ الذاكرة في وقت واحد لاستعادة حيوية النظام.</p>
+                        <button class="btn-primary" id="fullBoostBtn" style="width: 100%; background: linear-gradient(135deg, var(--neon-green), #00c7ff); color: #000; font-weight: bold;">إطلاق التنظيف الشامل 🚀</button>
+                    </div>
+                    <div class="stat-card glow-card" style="--primary: #f59e0b;">
+                        <div class="stat-header">
+                            <h3>إصلاح مشاكل التثبيت والحزم</h3>
+                            <span class="soft-tag">Fix APT & DPKG</span>
+                        </div>
+                        <p style="margin: 1rem 0; color: var(--text-dim);">فك أقفال التحديثات المعلقة وإصلاح الحزم المعطوبة وحل مشاكل الاعتماديات.</p>
+                        <button class="btn-primary" onclick="fixBrokenPackages()" style="width: 100%; background: linear-gradient(135deg, #f59e0b, #d97706); font-weight: bold;">🔧 إصلاح الحزم المعطلة الآن</button>
+                    </div>
+                </div>
+                
+                <div class="software-container" style="margin-top: 2rem;">
+                    <div class="soft-item">
+                        <div>
+                            <h4>تفريغ الذاكرة المؤقتة (Instant RAM Flush)</h4>
+                            <p>مسح PageCache و Dentries و Inodes لتحرير الرام فوراً دون إعادة تشغيل.</p>
+                        </div>
+                        <button class="btn-primary" onclick="dropRamCache()">تفريغ الرام</button>
+                    </div>
+                    <div class="soft-item">
+                        <div>
+                            <h4>تنظيف سريع (Quick Clean)</h4>
+                            <p>مسح الكاش والملفات المؤقتة ومصغرات الصور.</p>
+                        </div>
+                        <button class="btn-primary" id="quickCleanBtn">تنظيف سريع</button>
+                    </div>
+                    <div class="soft-item">
+                        <div>
+                            <h4>تنظيف عميق (Deep Clean)</h4>
+                            <p>مسح سجلات النظام القديمة والحزم غير المستخدمة ومخلفات التصفح.</p>
+                        </div>
+                        <button class="btn-primary" id="deepCleanBtnAlt" style="background: var(--danger);">تنظيف عميق</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 8. Network & DNS Switcher -->
+            <section id="network" class="tab-content">
+                <header>
+                    <h2>الشبكة ومبدّل الـ DNS الذكي</h2>
+                    <p>تبديل فوري لخوادم الـ DNS لتسريع التصفح وحجب الإعلانات مع فحص سرعة الاستجابة (Ping).</p>
+                </header>
+
+                <div class="stats-grid" style="margin-bottom: 2rem;">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <h3>اختبار سرعة الاستجابة (Latency)</h3>
+                            <span class="soft-tag">Ping Test</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-around; margin: 1.5rem 0;">
+                            <div style="text-align: center;">
+                                <small style="color: var(--text-dim);">Cloudflare (1.1.1.1)</small>
+                                <div id="pingCf" style="font-size: 1.5rem; color: var(--success); font-weight: bold;">جارٍ الفحص...</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <small style="color: var(--text-dim);">Google (8.8.8.8)</small>
+                                <div id="pingGg" style="font-size: 1.5rem; color: var(--primary); font-weight: bold;">جارٍ الفحص...</div>
+                            </div>
+                        </div>
+                        <button class="btn-primary" onclick="loadPingTest()" style="width: 100%;">🔄 إعادة فحص الـ Ping</button>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <h3>قياس سرعة الإنترنت (Speed Test)</h3>
+                            <span class="soft-tag">Live Test</span>
+                        </div>
+                        <p style="margin: 1rem 0; color: var(--text-dim);">فحص سرعة التحميل والرفع في الوقت الفعلي عبر سيرفرات Speedtest.</p>
+                        <button class="btn-primary" id="speedtestBtn" style="width: 100%;">⚡ بدء فحص السرعة</button>
+                    </div>
+                </div>
+
+                <h3 style="margin-bottom: 1rem; color: var(--primary);">🌍 اختر خادم DNS المفضل لديك للشبكة النشطة:</h3>
+                <div class="themes-grid">
+                    <div class="theme-card" style="border-color: #f59e0b;">
+                        <div class="theme-preview" style="color: #f59e0b; font-size: 3rem;">⚡</div>
+                        <h3>Cloudflare DNS (1.1.1.1)</h3>
+                        <p>الأسرع عالمياً في سرعة فتح المواقع واستجابة الألعاب.</p>
+                        <button class="btn-primary" onclick="changeDnsPreset('cloudflare')" style="background: #f59e0b; color: #000;">تفعيل Cloudflare</button>
+                    </div>
+                    <div class="theme-card" style="border-color: #00f2ff;">
+                        <div class="theme-preview" style="color: #00f2ff; font-size: 3rem;">🌍</div>
+                        <h3>Google DNS (8.8.8.8)</h3>
+                        <p>الخادم الأكثر استقراراً وموثوقية حول العالم.</p>
+                        <button class="btn-primary" onclick="changeDnsPreset('google')" style="background: #00f2ff; color: #000;">تفعيل Google</button>
+                    </div>
+                    <div class="theme-card" style="border-color: #00ff88;">
+                        <div class="theme-preview" style="color: #00ff88; font-size: 3rem;">🛡️</div>
+                        <h3>AdGuard DNS (حجب الإعلانات)</h3>
+                        <p>حجب الإعلانات المزعجة والنوافذ المنبثقة تلقائياً.</p>
+                        <button class="btn-primary" onclick="changeDnsPreset('adguard')" style="background: #00ff88; color: #000;">تفعيل AdGuard</button>
+                    </div>
+                    <div class="theme-card" style="border-color: #a855f7;">
+                        <div class="theme-preview" style="color: #a855f7; font-size: 3rem;">🔒</div>
+                        <h3>Quad9 DNS (الحماية القصوى)</h3>
+                        <p>حظر المواقع الضارة والبرمجيات الخبيثة والتصيد.</p>
+                        <button class="btn-primary" onclick="changeDnsPreset('quad9')" style="background: #a855f7;">تفعيل Quad9</button>
+                    </div>
+                </div>
+                <div style="margin-top: 1rem; text-align: center;">
+                    <button class="btn-primary" onclick="changeDnsPreset('default')" style="background: var(--panel);">استعادة الـ DNS الافتراضي للشبكة (DHCP Auto)</button>
+                </div>
+                <div id="networkResult" style="margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 10px; font-family: monospace; display: none; white-space: pre-wrap; direction: ltr; text-align: left;"></div>
+            </section>
+
+            <!-- 9. AI System Doctor -->
+            <section id="doctor" class="tab-content">
+                <header>
+                    <h2 class="neon-text">طبيب النظام الذكي (AI Health Diagnostics)</h2>
+                    <p>فحص وتحليل السجلات الحقيقية للنظام ورصد المشاكل والأعطال مع إمكانية الإصلاح التلقائي.</p>
+                </header>
+
+                <div class="stats-grid" style="margin-bottom: 1.5rem;">
+                    <div class="stat-card" style="border-color: var(--primary);">
+                        <div class="stat-header">
+                            <h3>مؤشر صحة النظام العام</h3>
+                            <span class="soft-tag" id="doctorHealthScore">99%</span>
+                        </div>
+                        <div id="doctorStatusSummary" style="font-size: 1.2rem; color: var(--success); font-weight: bold; margin: 1rem 0;">النظام في حالة ممتازة ومستقرة.</div>
+                        <button class="btn-primary" onclick="runDoctorDiagnosis()" style="width: 100%;">🩺 إعادة تشخيص النظام الآن</button>
+                    </div>
+                    <div class="stat-card" style="border-color: #f59e0b;">
+                        <div class="stat-header">
+                            <h3>مركز الإصلاح الفوري (Auto-Fix)</h3>
+                            <span class="soft-tag">الصيانة التلقائية</span>
+                        </div>
+                        <p style="margin: 1rem 0; color: var(--text-dim);">حل المشاكل الأكثر شيوعاً: تصحيح الحزم المعطلة، تفريغ الرام، ومسح الملفات التالفة.</p>
+                        <button class="btn-primary" onclick="fixBrokenPackages()" style="width: 100%; background: linear-gradient(135deg, #f59e0b, #d97706); font-weight: bold;">🔧 تشغيل الإصلاح التلقائي الشامل</button>
+                    </div>
+                </div>
+
+                <div class="software-container" id="doctorResultsContainer">
+                    <!-- Diagnostic Items -->
+                </div>
+
+                <div class="software-container" style="margin-top: 1.5rem;">
+                    <div class="stat-card" style="width: 100%; background: rgba(0,0,0,0.4);">
+                        <h3>سجلات النظام المباشرة (System Journal Logs)</h3>
+                        <pre id="logTerminal" style="font-family: monospace; font-size: 0.85rem; color: #00ff88; max-height: 250px; overflow-y: auto; padding: 1rem;"></pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 10. Themes & Appearance -->
+            <section id="themes" class="tab-content">
+                <header>
+                    <h2>تخصيص المظهر الكامل</h2>
+                    <p>قم بتحويل نظامك إلى macOS أو Windows 11 أو ثيمات Colloid و LinuxForGeeks بضغطة واحدة.</p>
+                </header>
+                <div class="themes-grid">
+                    <div class="theme-card" id="themeMac">
+                        <div class="theme-preview mac-preview">🍏</div>
+                        <h3>مظهر macOS الكامل</h3>
+                        <p>تحويل شامل: أيقونات، خطوط Apple، شريط سفلي، واختصارات.</p>
+                        <button class="btn-primary" onclick="applyTheme('mac')">تطبيق التحويل</button>
+                    </div>
+                    <div class="theme-card" id="themeWin">
+                        <div class="theme-preview win-preview">🪟</div>
+                        <h3>Windows 11 Ultimate</h3>
+                        <p>شريط مهام وسطي، أيقونات Fluent، ومؤثرات ويندوز 11 الحديثة.</p>
+                        <button class="btn-primary" onclick="applyTheme('win')">تطبيق التحويل</button>
+                    </div>
+                    <div class="theme-card" id="themeDefault">
+                        <div class="theme-preview def-preview">🐧</div>
+                        <h3>ثيم Ubuntu الأصلي</h3>
+                        <p>العودة للمظهر الافتراضي للنظام.</p>
+                        <button class="btn-primary" onclick="applyTheme('default')" style="background: var(--secondary);">استعادة الافتراضي</button>
+                    </div>
+                </div>
+
+                <div class="themes-grid" style="margin-top: 30px;">
+                    <h2 style="grid-column: 1 / -1; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">ثيمات Colloid Modern</h2>
+                    <div class="theme-card">
+                        <div class="theme-preview" style="background: url('https://raw.githubusercontent.com/vinceliuice/Colloid-gtk-theme/master/preview/light.png') center/cover;"></div>
+                        <h3>Colloid Light</h3>
+                        <p>تصميم عصري ملون مع زوايا دائرية جذابة.</p>
+                        <button class="btn-primary" onclick="applySmartTheme('Colloid-Light', 'Colloid')">تثبيت ذكي</button>
+                    </div>
+                    <div class="theme-card">
+                        <div class="theme-preview" style="background: url('https://raw.githubusercontent.com/vinceliuice/Colloid-gtk-theme/master/preview/dark.png') center/cover;"></div>
+                        <h3>Colloid Dark</h3>
+                        <p>النسخة المظلمة الأنيقة من ثيم Colloid.</p>
+                        <button class="btn-primary" onclick="applySmartTheme('Colloid-Dark', 'Colloid')">تثبيت ذكي</button>
+                    </div>
+                </div>
+
+                <div class="themes-grid" style="margin-top: 30px;">
+                    <h2 style="grid-column: 1 / -1; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">تخصيص شريط المهام (Dock)</h2>
+                    <div class="theme-card">
+                        <div class="theme-preview mac-preview" style="color: #e2e8f0;">🍏</div>
+                        <h3>شريط macOS الأخير</h3>
+                        <p>شريط عائم، شفاف، مع الأيقونات في المنتصف.</p>
+                        <button class="btn-primary" onclick="applyDock('mac')">تطبيق</button>
+                    </div>
+                    <div class="theme-card">
+                        <div class="theme-preview win-preview" style="color: #3b82f6;">🪟</div>
+                        <h3>شريط Windows 11</h3>
+                        <p>شريط سفلي ممتد لجميع الشاشة.</p>
+                        <button class="btn-primary" onclick="applyDock('win')">تطبيق</button>
+                    </div>
+                    <div class="theme-card">
+                        <div class="theme-preview def-preview" style="color: #f97316;">🐧</div>
+                        <h3>شريط Ubuntu الافتراضي</h3>
+                        <p>شريط جانبي ممتد على اليسار.</p>
+                        <button class="btn-primary" onclick="applyDock('default')">تطبيق</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 11. Tweaks -->
+            <section id="tweaks" class="tab-content">
+                <header>
+                    <h2>مُعدّل خيارات GNOME المتقدم</h2>
+                    <p>تحكم كامل في خيارات بيئة سطح المكتب الخفية لتجربة مستخدم مثالية.</p>
+                </header>
+                <div class="stats-grid">
+                    <div class="stat-card" style="padding: 2rem;">
+                        <h3>تأثيرات الحركة والأنيميشن</h3>
+                        <p>تسريع الواجهة عبر إيقاف/تشغيل الأنيميشن لتسريع الأداء.</p>
+                        <button class="btn-primary" onclick="toggleTweak('org.gnome.desktop.interface enable-animations', 'true')">تفعيل</button>
+                        <button class="btn-primary" onclick="toggleTweak('org.gnome.desktop.interface enable-animations', 'false')" style="background: var(--danger);">إيقاف</button>
+                    </div>
+                    <div class="stat-card" style="padding: 2rem;">
+                        <h3>الوضع الليلي وحماية العين</h3>
+                        <p>حماية العين عبر تقليل الضوء الأزرق في المساء.</p>
+                        <button class="btn-primary" onclick="toggleTweak('org.gnome.settings-daemon.plugins.color night-light-enabled', 'true')">تفعيل</button>
+                        <button class="btn-primary" onclick="toggleTweak('org.gnome.settings-daemon.plugins.color night-light-enabled', 'false')" style="background: var(--danger);">إيقاف</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 12. Wallpapers -->
+            <section id="wallpapers" class="tab-content">
+                <header>
+                    <h2>خلفيات بدقة 4K</h2>
+                    <p>اختر وتعيين خلفية عالية الدقة لسطح مكتبك بضغطة زر واحدة.</p>
+                </header>
+                <div class="themes-grid" id="wallpaperGrid">
+                    <div class="theme-card">
+                        <div class="theme-preview" style="background: url('https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=500') center/cover;"></div>
+                        <h3>Cosmic Nebula</h3>
+                        <button class="btn-primary" onclick="applyWallpaper('https://images.unsplash.com/photo-1614850523296-d8c1af93d400?auto=format&fit=crop&q=80&w=2000')">تطبيق</button>
+                    </div>
+                    <div class="theme-card">
+                        <div class="theme-preview" style="background: url('https://images.unsplash.com/photo-1477346611705-65d1883cee1e?q=80&w=500') center/cover;"></div>
+                        <h3>Mountain Mist</h3>
+                        <button class="btn-primary" onclick="applyWallpaper('https://images.unsplash.com/photo-1477346611705-65d1883cee1e?auto=format&fit=crop&q=80&w=2000')">تطبيق</button>
+                    </div>
+                    <div class="theme-card">
+                        <div class="theme-preview" style="background: url('https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=500') center/cover;"></div>
+                        <h3>Abstract Glass</h3>
+                        <button class="btn-primary" onclick="applyWallpaper('https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&q=80&w=2000')">تطبيق</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 13. Process Manager -->
+            <section id="processes" class="tab-content">
+                <header>
+                    <h2>إدارة العمليات (Task Manager)</h2>
+                    <p>مراقبة العمليات الأكثر استهلاكاً للمعالج والذاكرة مع إمكانية تعديل الأولوية أو الإنهاء الفوري.</p>
+                </header>
+                <div class="software-container" id="processList">
+                    <!-- Dynamic List -->
+                </div>
+            </section>
+
+            <!-- 14. Security Center -->
+            <section id="security" class="tab-content">
+                <header>
+                    <h2>مركز الأمان والجدار الناري (UFW)</h2>
+                    <p>حماية نظامك وشبكتك من الاختراقات والمنافذ غير المرغوبة.</p>
+                </header>
+                <div class="stats-grid">
+                    <div class="stat-card glow-card">
+                        <h3>حالة الجدار الناري</h3>
+                        <div id="ufwStatus" class="stat-value" style="font-size: 2rem; margin: 1rem 0;">جارٍ الفحص...</div>
+                        <button class="btn-primary" id="ufwToggle">تبديل الحالة (تشغيل / إيقاف)</button>
+                    </div>
+                </div>
+                <div class="software-container" style="margin-top: 2rem;">
+                    <h3>قواعد الجدار الناري النشطة</h3>
+                    <div id="ufwRules" style="margin-top: 1rem;">
+                        <!-- Rules Table -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- 15. Active Ports -->
+            <section id="network-pro" class="tab-content">
+                <header>
+                    <h2>المنافذ النشطة والخدمات المتنصتة</h2>
+                    <p>فحص المنافذ المفتوحة والتطبيقات التي تستمع للاتصالات على جهازك.</p>
+                </header>
+                <div class="software-container" id="portList">
+                    <!-- Port List -->
+                </div>
+            </section>
+
+            <!-- 16. Kernel Explorer -->
+            <section id="kernel" class="tab-content">
+                <header>
+                    <h2>مستكشف وحدات النواة (Kernel Modules)</h2>
+                    <p>استكشاف تعريفات الأجهزة والوحدات المحملة في قلب النواة حالياً.</p>
+                </header>
+                <div class="software-container" id="kernelList">
+                    <!-- Kernel Modules -->
+                </div>
+            </section>
+
+            <!-- 17. Backup -->
+            <section id="backup" class="tab-content">
+                <header>
+                    <h2>مركز النسخ الاحتياطي (Backup Center)</h2>
+                    <p>إنشاء نسخة احتياطية فورية لملفات الإعدادات والتطبيقات.</p>
+                </header>
+                <div class="themes-grid">
+                    <div class="theme-card" style="border-color: var(--neon-blue);">
+                        <div class="theme-preview" style="font-size: 5rem;">💾</div>
+                        <h3>نسخة احتياطية للإعدادات</h3>
+                        <p>سيتم ضغط وحفظ مجلد .config في مجلدك الشخصي بأمان.</p>
+                        <button class="btn-primary" onclick="runBackup()">بدء النسخ الآن</button>
+                    </div>
+                    <div class="theme-card" style="border-color: var(--neon-purple);">
+                        <div class="theme-preview" style="font-size: 5rem;">📑</div>
+                        <h3>تقرير مواصفات النظام</h3>
+                        <p>توليد وتنزيل تقرير نصي شامل عن العتاد والبرمجيات.</p>
+                        <button class="btn-primary" onclick="window.location.href='http://localhost:3010/api/system/report'" style="background: var(--neon-purple);">تحميل التقرير</button>
+                    </div>
+                    <div class="theme-card" style="border-color: var(--neon-green);">
+                        <div class="theme-preview" style="font-size: 5rem;">🧾</div>
+                        <h3>تصدير تقرير JSON</h3>
+                        <p>تنزيل لقطة شاملة للحالة الحالية للنظام بصيغة JSON قابلة للمشاركة.</p>
+                        <button class="btn-primary" onclick="exportJsonReport()" style="background: var(--neon-green); color: #000;">تصدير JSON</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 18. Disk Analyzer -->
+            <section id="disk-analyzer" class="tab-content">
+                <header>
+                    <h2>محلل مساحة القرص (Disk Analyzer)</h2>
+                    <p>أكبر 15 مجلداً استهلاكاً للمساحة داخل مجلدك الشخصي — اكتشف ما يملأ القرص بسرعة.</p>
+                </header>
+                <button class="btn-primary" onclick="loadDiskAnalyzer()" style="margin-bottom: 1rem;">🔍 تحليل القرص الآن</button>
+                <div class="software-container" id="diskAnalyzerList">
+                    <div class="loading">اضغط "تحليل القرص الآن" لعرض النتائج...</div>
+                </div>
+            </section>
+
+            <!-- 19. Available Updates -->
+            <section id="updates" class="tab-content">
+                <header>
+                    <h2>التحديثات المتوفرة</h2>
+                    <p>الحزم الجاهزة للترقية في مستودعات النظام — يعتمد على آخر فحص للمستودعات.</p>
+                </header>
+                <div id="updatesSummary" class="info-badges"></div>
+                <div class="software-container" id="updatesList">
+                    <div class="loading">اضغط "فحص التحديثات" لعرض القائمة...</div>
+                </div>
+                <button class="btn-primary" onclick="loadSystemUpdates()" style="margin-top: 1rem;">🔄 فحص التحديثات</button>
+            </section>
+
+            <!-- 20. Power Controls -->
+            <section id="power" class="tab-content">
+                <header>
+                    <h2>أزرار الطاقة (Power Controls)</h2>
+                    <p>قفل الشاشة، الإسبات، إعادة التشغيل أو إيقاف التشغيل — بنافذة صلاحيات النظام الرسومية.</p>
+                </header>
+                <div class="themes-grid">
+                    <div class="theme-card" style="border-color: var(--neon-blue);">
+                        <div class="theme-preview" style="font-size: 5rem;">🔒</div>
+                        <h3>قفل الشاشة</h3>
+                        <p>قفل جلسة المستخدم الحالية فوراً.</p>
+                        <button class="btn-primary" onclick="powerAction('lock')">قفل الشاشة</button>
+                    </div>
+                    <div class="theme-card" style="border-color: var(--neon-cyan, #00f2ff);">
+                        <div class="theme-preview" style="font-size: 5rem;">😴</div>
+                        <h3>إسبات النظام (Suspend)</h3>
+                        <p>تجميد النظام في وضع توفير الطاقة.</p>
+                        <button class="btn-primary" onclick="powerAction('suspend')">إسبات النظام</button>
+                    </div>
+                    <div class="theme-card" style="border-color: var(--neon-purple);">
+                        <div class="theme-preview" style="font-size: 5rem;">🔄</div>
+                        <h3>إعادة التشغيل</h3>
+                        <p>إعادة تشغيل الجهاز بالكامل.</p>
+                        <button class="btn-primary" onclick="powerAction('reboot')" style="background: #f59e0b;">إعادة التشغيل</button>
+                    </div>
+                    <div class="theme-card" style="border-color: var(--neon-red, #ff0055);">
+                        <div class="theme-preview" style="font-size: 5rem;">⏻</div>
+                        <h3>إيقاف التشغيل</h3>
+                        <p>إيقاف تشغيل الجهاز بالكامل.</p>
+                        <button class="btn-primary" onclick="powerAction('poweroff')" style="background: var(--danger);">إيقاف التشغيل</button>
+                    </div>
+                </div>
+            </section>
+        <!-- 21. Network Info -->
+            <section id="network-info" class="tab-content">
+                <header>
+                    <h2>معلومات الشبكة الحالية</h2>
+                    <p>الشبكة المتصلة، عنوان IP، البوابة وخوادم DNS في لمحة سريعة.</p>
+                </header>
+                <div class="info-badges" id="networkInfoBadges">
+                    <div class="badge"><span class="icon">📶</span> Wi-Fi: <span id="netWifi">جارٍ...</span></div>
+                    <div class="badge"><span class="icon">🌐</span> IP: <span id="netIp">جارٍ...</span></div>
+                    <div class="badge"><span class="icon">🚪</span> البوابة: <span id="netGateway">جارٍ...</span></div>
+                    <div class="badge"><span class="icon">📋</span> DNS: <span id="netDns">جارٍ...</span></div>
+                </div>
+                <button class="btn-primary" onclick="loadNetworkInfo()" style="margin-top: 1rem;">🔄 تحديث المعلومات</button>
+            </section>
+
+            <!-- 22. System Info -->
+            <section id="system-info" class="tab-content">
+                <header>
+                    <h2>معلومات النظام الكاملة</h2>
+                    <p>تفاصيل شاملة عن العتاد والبرمجيات وجلسة المستخدم الحالية.</p>
+                </header>
+                <div class="software-container" id="systemInfoList">
+                    <div class="loading">اضغط "عرض التفاصيل" لتحميل المعلومات...</div>
+                </div>
+                <button class="btn-primary" onclick="loadSystemInfo()" style="margin-top: 1rem;">🖥️ عرض التفاصيل</button>
+            </section>
+
+            <!-- 23. Disk Partitions -->
+            <section id="partitions" class="tab-content">
+                <header>
+                    <h2>الأقراص والأقسام (Partitions)</h2>
+                    <p>نظرة تفصيلية على الأقسام المثبتة ومستوى امتلائها واستخدامها.</p>
+                </header>
+                <button class="btn-primary" onclick="loadPartitions()" style="margin-bottom: 1rem;">💿 عرض الأقسام</button>
+                <div class="software-container" id="partitionsList">
+                    <div class="loading">اضغط "عرض الأقسام" لتحميل الجدول...</div>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script type="module" src="/main.js"></script>
+</body>
+</html>

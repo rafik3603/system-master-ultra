@@ -1,0 +1,22 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=System Master
+Comment=إدارة نظام لينكس بذكاء
+Exec=/home/rafik/.gemini/antigravity/scratch/system-master/start_app.sh
+Icon=utilities-system-monitor
+Terminal=true
+Categories=System;Utility;
+Path=/home/rafik/.gemini/antigravity/scratch/system-master
+Actions=SpeedTest;ChangeDNS;FixVLC;
+
+[Desktop Action SpeedTest]
+Name=قياس سرعة الإنترنت
+Exec=gnome-terminal -- /home/rafik/.gemini/antigravity/scratch/system-master/network_tools.sh speedtest
+
+[Desktop Action ChangeDNS]
+Name=تغيير DNS إلى Google
+Exec=gnome-terminal -- /home/rafik/.gemini/antigravity/scratch/system-master/network_tools.sh changedns
+[Desktop Action FixVLC]
+Name=إصلاح برنامج VLC
+Exec=gnome-terminal -- bash -c "echo 'سيتم الآن إزالة نسخة Snap وتثبيت نسخة APT المستقرة...'; sudo snap remove vlc && sudo apt update && sudo apt install -y vlc; echo 'تمت العملية بنجاح! اضغط أي مفتاح للإغلاق...'; read -n 1"
