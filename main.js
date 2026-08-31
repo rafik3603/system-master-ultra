@@ -24,6 +24,9 @@ document.querySelectorAll('.nav-btn').forEach(btn => {
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+
+        // Smooth scroll to top on tab switch
+        document.querySelector('.content')?.scrollTo({ top: 0, behavior: 'smooth' });
         
         const targetTab = document.getElementById(tabId);
         if (targetTab) targetTab.classList.add('active');
@@ -165,10 +168,28 @@ async function updateStats() {
 
 function updateChart(chart, val, valId) {
     const el = document.getElementById(valId);
-    if (el) el.textContent = Math.round(val) + '%';
+    if (el) {
+        // Animate the numeric value smoothly from previous to new
+        const from = parseFloat(el.dataset.prev || '0') || 0;
+        const to = Math.round(val);
+        animateNumber(el, from, to, 500);
+        el.dataset.prev = to;
+    }
     chart.data.datasets[0].data.shift();
     chart.data.datasets[0].data.push(val);
     chart.update('none');
+}
+
+// Smooth number counter animation
+function animateNumber(el, from, to, duration) {
+    const start = performance.now();
+    const step = (now) => {
+        const t = Math.min((now - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - t, 3); // easeOutCubic
+        el.textContent = Math.round(from + (to - from) * eased) + '%';
+        if (t < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
 }
 
 // ==========================================

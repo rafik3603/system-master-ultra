@@ -335,6 +335,180 @@ header p {
 .tab-content { display: none; animation: slideIn 0.5s ease-out; }
 .tab-content.active { display: block; }
 
+/* ============================================
+   Developer: Rafik — Animation & Polish Suite
+   ============================================ */
+
+/* Entrance animations */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes popIn {
+    0% { opacity: 0; transform: scale(0.85); }
+    70% { transform: scale(1.04); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 0 8px var(--primary-glow); }
+    50% { box-shadow: 0 0 22px var(--primary-glow); }
+}
+
+@keyframes floatIcon {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+}
+
+@keyframes shimmer {
+    0% { background-position: -300% 0; }
+    100% { background-position: 300% 0; }
+}
+
+/* Staggered card entrance on each tab open */
+.tab-content.active .stat-card,
+.tab-content.active .theme-card,
+.tab-content.active .soft-item {
+    animation: fadeInUp 0.55s ease-out both;
+}
+.tab-content.active .stat-card:nth-child(1),
+.tab-content.active .theme-card:nth-child(1) { animation-delay: 0.05s; }
+.tab-content.active .stat-card:nth-child(2),
+.tab-content.active .theme-card:nth-child(2) { animation-delay: 0.12s; }
+.tab-content.active .stat-card:nth-child(3),
+.tab-content.active .theme-card:nth-child(3) { animation-delay: 0.19s; }
+.tab-content.active .stat-card:nth-child(4),
+.tab-content.active .theme-card:nth-child(4) { animation-delay: 0.26s; }
+.tab-content.active .soft-item:nth-child(1) { animation-delay: 0.08s; }
+.tab-content.active .soft-item:nth-child(2) { animation-delay: 0.14s; }
+.tab-content.active .soft-item:nth-child(3) { animation-delay: 0.2s; }
+.tab-content.active .soft-item:nth-child(4) { animation-delay: 0.26s; }
+.tab-content.active .soft-item:nth-child(5) { animation-delay: 0.32s; }
+
+/* Stat cards: animated numeric pop + subtle floating icon */
+.stat-value {
+    animation: popIn 0.45s ease-out both;
+    font-variant-numeric: tabular-nums;
+    transition: color 0.4s;
+}
+.stat-card:hover .stat-header h3 {
+    color: var(--primary);
+    transition: 0.3s;
+}
+.stat-card:hover {
+    transform: translateY(-4px);
+    transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.stat-card .app-icon,
+.theme-preview {
+    transition: transform 0.4s ease-out;
+}
+.stat-card:hover .app-icon,
+.theme-card:hover .theme-preview {
+    animation: floatIcon 1.6s ease-in-out infinite;
+}
+
+/* Live status dot — heartbeat pulse */
+.status-indicator .dot {
+    width: 10px;
+    height: 10px;
+    background: var(--success);
+    border-radius: 50%;
+    animation: heartbeat 1.8s ease-in-out infinite;
+}
+@keyframes heartbeat {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.6); }
+    50% { box-shadow: 0 0 0 8px rgba(0, 255, 136, 0); }
+}
+
+/* Nav buttons: animated glow underline on active */
+.nav-btn {
+    position: relative;
+    overflow: hidden;
+}
+.nav-btn.active {
+    animation: pulseGlow 2.6s ease-in-out infinite;
+}
+.nav-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, transparent 30%, rgba(255, 255, 255, 0.07) 50%, transparent 70%);
+    background-size: 300% 100%;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+.nav-btn:hover::after {
+    opacity: 1;
+    animation: shimmer 1.4s linear infinite;
+}
+
+/* Loading spinner text with animated gradient */
+.loading {
+    background: linear-gradient(120deg, var(--text-dim) 30%, var(--primary) 50%, var(--text-dim) 70%);
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 2.2s linear infinite;
+}
+
+/* Buttons: press physics */
+.btn-primary {
+    transition: transform 0.15s ease, box-shadow 0.25s ease, filter 0.25s ease;
+}
+.btn-primary:hover {
+    transform: translateY(-2px) scale(1.02);
+    filter: brightness(1.12);
+}
+.btn-primary:active {
+    transform: translateY(1px) scale(0.97);
+}
+
+/* Progress bars grow smoothly */
+.tab-content .soft-item div[style*="width:"]:not([style*="width: 6px"]):not([style*="width: 5px"]),
+.tab-content td div[style*="width:"] {
+    transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Developer signature */
+.dev-signature {
+    margin-top: 0.6rem;
+    padding-top: 0.7rem;
+    border-top: 1px solid var(--glass-border);
+    text-align: center;
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    letter-spacing: 0.5px;
+}
+.dev-signature .dev-name {
+    background: linear-gradient(120deg, var(--neon-blue), var(--neon-purple), var(--neon-green));
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 3.5s linear infinite;
+    font-weight: 800;
+    font-size: 0.9rem;
+}
+[data-theme="light"] .loading,
+[data-theme="light"] .dev-signature .dev-name {
+    -webkit-text-fill-color: transparent;
+}
+
+/* Respect reduced-motion accessibility setting */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+.tab-content.active { display: block; }
+
 @keyframes slideIn {
     from { opacity: 0; transform: translateX(20px); }
     to { opacity: 1; transform: translateX(0); }

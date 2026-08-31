@@ -4,6 +4,8 @@
 
 ### مدير نظام لينكس متكامل — واجهة ويب عربية حديثة
 
+**تطوير: رفيق 👑**
+
 [![Status](https://img.shields.io/badge/الحالة-نشط-brightgreen)](https://github.com/rafik3603/system-master-ultra)
 [![Platform](https://img.shields.io/badge/المنصة-Linux-blue)](https://github.com/rafik3603/system-master-ultra)
 [![License](https://img.shields.io/badge/الترخيص-MIT-orange)](LICENSE)
@@ -191,7 +193,9 @@ system-master-ultra/
 
 <div align="center">
 
-**صُنع بـ 💠 لأجل لينكس**
+**صُنع بـ 💠 لأجل لينكس — تطوير: رفيق 👑**
+
+[![Developer](https://img.shields.io/badge/المطور-رفيق-7000ff?style=for-the-badge&logo=github)](https://github.com/rafik3603)
 
 ⭐ إذا أعجبك المشروع، ادعمه بنجمة على GitHub!
 
