@@ -17,77 +17,131 @@
                     <span style="font-size: 0.75rem; color: var(--primary); letter-spacing: 1px;">PRO v2.0</span>
                 </div>
             </div>
+
+            <div class="sidebar-mini-stats">
+                <div class="mini-stat"><span class="label">المعالج</span><span class="val" id="sbCpu">--</span></div>
+                <div class="mini-stat"><span class="label">الرام</span><span class="val" id="sbRam">--</span></div>
+                <div class="mini-stat"><span class="label">القرص</span><span class="val" id="sbDisk">--</span></div>
+            </div>
             
-            <nav>
-                <button class="nav-btn active" data-tab="dashboard">
-                    <span class="icon">📈</span> لوحة القيادة
-                </button>
-                <button class="nav-btn" data-tab="software">
-                    <span class="icon">📦</span> إدارة البرامج المثبتة
-                </button>
-                <button class="nav-btn" data-tab="startup">
-                    <span class="icon">🚀</span> بدء التشغيل (Startup)
-                </button>
-                <button class="nav-btn" data-tab="storage">
-                    <span class="icon">🗄️</span> محلل التخزين والملفات
-                </button>
-                <button class="nav-btn" data-tab="services">
-                    <span class="icon">⚙️</span> إدارة الخدمات
-                </button>
-                <button class="nav-btn" data-tab="installer">
-                    <span class="icon">🛸</span> تثبيت البرامج و Wine
-                </button>
-                <button class="nav-btn" data-tab="optimizer">
-                    <span class="icon">🌀</span> تسريع وتنظيف النظام
-                </button>
-                <button class="nav-btn" data-tab="network">
-                    <span class="icon">🌐</span> الشبكة والـ DNS
-                </button>
-                <button class="nav-btn" data-tab="network-info">
-                    <span class="icon">📶</span> معلومات الشبكة الحالية
-                </button>
-                <button class="nav-btn" data-tab="system-info">
-                    <span class="icon">🖥️</span> معلومات النظام الكاملة
-                </button>
-                <button class="nav-btn" data-tab="doctor">
-                    <span class="icon">🩺</span> طبيب النظام AI
-                </button>
-                <button class="nav-btn" data-tab="themes">
-                    <span class="icon">🎨</span> الثيمات والمظهر
-                </button>
-                <button class="nav-btn" data-tab="tweaks">
-                    <span class="icon">🛠️</span> مُعدّل خيارات GNOME
-                </button>
-                <button class="nav-btn" data-tab="wallpapers">
-                    <span class="icon">🖼️</span> خلفيات 4K
-                </button>
-                <button class="nav-btn" data-tab="processes">
-                    <span class="icon">📊</span> إدارة العمليات
-                </button>
-                <button class="nav-btn" data-tab="security">
-                    <span class="icon">🛡️</span> مركز الأمان (UFW)
-                </button>
-                <button class="nav-btn" data-tab="network-pro">
-                    <span class="icon">📡</span> المنافذ النشطة
-                </button>
-                <button class="nav-btn" data-tab="kernel">
-                    <span class="icon">🧬</span> مستكشف النواة
-                </button>
-                <button class="nav-btn" data-tab="backup">
-                    <span class="icon">💾</span> النسخ الاحتياطي
-                </button>
-                <button class="nav-btn" data-tab="disk-analyzer">
-                    <span class="icon">🗃️</span> محلل مساحة القرص
-                </button>
-                <button class="nav-btn" data-tab="partitions">
-                    <span class="icon">💿</span> الأقراص والأقسام
-                </button>
-                <button class="nav-btn" data-tab="updates">
-                    <span class="icon">🔄</span> التحديثات المتوفرة
-                </button>
-                <button class="nav-btn" data-tab="power">
-                    <span class="icon">⏻</span> أزرار الطاقة
-                </button>
+            <nav id="sidebarNav">
+                <!-- Group: Home -->
+                <div class="nav-group">
+                    <div class="nav-group-title"><span>🏠 الرئيسية والمراقبة</span><span class="arrow">▾</span></div>
+                    <div class="nav-group-items">
+                        <button class="nav-btn active" data-tab="dashboard">
+                            <span class="icon">📈</span> لوحة القيادة
+                        </button>
+                        <button class="nav-btn" data-tab="doctor">
+                            <span class="icon">🩺</span> طبيب النظام AI
+                        </button>
+                        <button class="nav-btn" data-tab="system-info">
+                            <span class="icon">🖥️</span> معلومات النظام الكاملة
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Group: Programs -->
+                <div class="nav-group">
+                    <div class="nav-group-title"><span>📦 البرامج والتثبيت</span><span class="arrow">▾</span></div>
+                    <div class="nav-group-items">
+                        <button class="nav-btn" data-tab="software">
+                            <span class="icon">📦</span> إدارة البرامج المثبتة
+                        </button>
+                        <button class="nav-btn" data-tab="installer">
+                            <span class="icon">🛸</span> تثبيت البرامج و Wine
+                        </button>
+                        <button class="nav-btn" data-tab="updates">
+                            <span class="icon">🔄</span> التحديثات المتوفرة
+                        </button>
+                        <button class="nav-btn" data-tab="startup">
+                            <span class="icon">🚀</span> بدء التشغيل (Startup)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Group: System & Performance -->
+                <div class="nav-group">
+                    <div class="nav-group-title"><span>⚙️ النظام والأداء</span><span class="arrow">▾</span></div>
+                    <div class="nav-group-items">
+                        <button class="nav-btn" data-tab="optimizer">
+                            <span class="icon">🌀</span> تسريع وتنظيف النظام
+                        </button>
+                        <button class="nav-btn" data-tab="services">
+                            <span class="icon">⚙️</span> إدارة الخدمات
+                        </button>
+                        <button class="nav-btn" data-tab="processes">
+                            <span class="icon">📊</span> إدارة العمليات
+                        </button>
+                        <button class="nav-btn" data-tab="kernel">
+                            <span class="icon">🧬</span> مستكشف النواة
+                        </button>
+                        <button class="nav-btn" data-tab="security">
+                            <span class="icon">🛡️</span> مركز الأمان (UFW)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Group: Storage -->
+                <div class="nav-group">
+                    <div class="nav-group-title"><span>🗄️ التخزين والنسخ الاحتياطي</span><span class="arrow">▾</span></div>
+                    <div class="nav-group-items">
+                        <button class="nav-btn" data-tab="storage">
+                            <span class="icon">🗄️</span> محلل التخزين والملفات
+                        </button>
+                        <button class="nav-btn" data-tab="disk-analyzer">
+                            <span class="icon">🗃️</span> محلل مساحة القرص
+                        </button>
+                        <button class="nav-btn" data-tab="partitions">
+                            <span class="icon">💿</span> الأقراص والأقسام
+                        </button>
+                        <button class="nav-btn" data-tab="backup">
+                            <span class="icon">💾</span> النسخ الاحتياطي
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Group: Network -->
+                <div class="nav-group">
+                    <div class="nav-group-title"><span>🌐 الشبكة والإنترنت</span><span class="arrow">▾</span></div>
+                    <div class="nav-group-items">
+                        <button class="nav-btn" data-tab="network">
+                            <span class="icon">🌐</span> الشبكة والـ DNS
+                        </button>
+                        <button class="nav-btn" data-tab="network-info">
+                            <span class="icon">📶</span> معلومات الشبكة الحالية
+                        </button>
+                        <button class="nav-btn" data-tab="network-pro">
+                            <span class="icon">📡</span> المنافذ النشطة
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Group: Customization -->
+                <div class="nav-group">
+                    <div class="nav-group-title"><span>🎨 التخصيص والمظهر</span><span class="arrow">▾</span></div>
+                    <div class="nav-group-items">
+                        <button class="nav-btn" data-tab="themes">
+                            <span class="icon">🎨</span> الثيمات والمظهر
+                        </button>
+                        <button class="nav-btn" data-tab="tweaks">
+                            <span class="icon">🛠️</span> مُعدّل خيارات GNOME
+                        </button>
+                        <button class="nav-btn" data-tab="wallpapers">
+                            <span class="icon">🖼️</span> خلفيات 4K
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Group: Power -->
+                <div class="nav-group">
+                    <div class="nav-group-title"><span>⏻ الطاقة والجلسة</span><span class="arrow">▾</span></div>
+                    <div class="nav-group-items">
+                        <button class="nav-btn" data-tab="power">
+                            <span class="icon">⏻</span> أزرار الطاقة
+                        </button>
+                    </div>
+                </div>
             </nav>
 
             <div class="status-indicator">

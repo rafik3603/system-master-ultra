@@ -16,8 +16,29 @@ function esc(str) {
 }
 
 // ==========================================
-// 1. Navigation
+// 1. Navigation — collapsible sidebar groups (accordion)
 // ==========================================
+function setGroupOpen(group, open) {
+    group.classList.toggle('collapsed', !open);
+}
+
+function openGroup(group) {
+    // Accordion: close all others, open this one
+    document.querySelectorAll('.nav-group').forEach(g => setGroupOpen(g, g === group));
+}
+
+document.querySelectorAll('.nav-group-title').forEach(title => {
+    title.addEventListener('click', (e) => {
+        const group = title.parentElement;
+        if (group.classList.contains('collapsed')) {
+            openGroup(group);
+        } else {
+            setGroupOpen(group, false);
+        }
+        e.stopPropagation();
+    });
+});
+
 document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         const tabId = btn.getAttribute('data-tab');
@@ -27,9 +48,12 @@ document.querySelectorAll('.nav-btn').forEach(btn => {
 
         // Smooth scroll to top on tab switch
         document.querySelector('.content')?.scrollTo({ top: 0, behavior: 'smooth' });
-        
+
         const targetTab = document.getElementById(tabId);
         if (targetTab) targetTab.classList.add('active');
+
+        // Keep the group holding the active tab open
+        openGroup(btn.closest('.nav-group'));
 
         if (tabId === 'software') loadSoftware();
         if (tabId === 'startup') loadStartupApps();
@@ -47,6 +71,9 @@ document.querySelectorAll('.nav-btn').forEach(btn => {
         if (tabId === 'kernel') loadKernelModules();
     });
 });
+
+// Initial state: open only the group with the active tab (dashboard)
+openGroup(document.querySelector('.nav-btn.active')?.closest('.nav-group'));
 
 // ==========================================
 // 2. Real-time Charts & Dashboard
@@ -132,6 +159,14 @@ async function updateStats() {
         if (uptimeEl) uptimeEl.textContent = data.uptime;
         if (memBadge) memBadge.textContent = `${data.memUsed} / ${data.memTotal}`;
         if (diskText) diskText.textContent = `${data.diskUsed} / ${data.diskTotal}`;
+
+        // Sidebar mini-stats (live)
+        const sbCpu = document.getElementById('sbCpu');
+        const sbRam = document.getElementById('sbRam');
+        const sbDisk = document.getElementById('sbDisk');
+        if (sbCpu) sbCpu.textContent = Math.round(data.cpu) + '%';
+        if (sbRam) sbRam.textContent = Math.round(data.memory) + '%';
+        if (sbDisk) sbDisk.textContent = Math.round(data.disk) + '%';
 
         // Network Traffic
         const netRes = await fetch(`${API_BASE}/network/traffic`);
